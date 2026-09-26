@@ -1,0 +1,4 @@
+conda env list
+conda init
+conda activate lab-noticias-obsidian
+conda list
