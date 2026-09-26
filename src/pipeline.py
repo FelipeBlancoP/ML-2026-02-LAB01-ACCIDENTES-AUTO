@@ -114,7 +114,12 @@ class PipelineLaboratorio:
         return ok, fallos
 
     def ejecutar_extraccion(self) -> tuple[int, int]:
-        """Gemini + validación JSON → data/json/{id_noticia}.json."""
+        """Gemini + validación JSON → data/json/{id_noticia}.json.
+
+        Si data/json/{id_noticia}.json ya existe, la noticia se omite: esto
+        sirve de checklist para reanudar una corrida interrumpida (o que se
+        quedó sin cuota) sin reprocesar lo ya extraído.
+        """
         print("== Etapa: extraer (Gemini) ==")
         noticias = self._leer_urls()
         if not GEMINI_API_KEY:
@@ -124,8 +129,12 @@ class PipelineLaboratorio:
             )
             return 0, len(noticias)
 
-        ok, fallos = 0, 0
+        ok, fallos, omitidas = 0, 0, 0
         for noticia in noticias:
+            ruta_json = DIR_JSON / f"{noticia.id_noticia}.json"
+            if ruta_json.exists():
+                omitidas += 1
+                continue
             print(f"  [{noticia.id_noticia}] {noticia.fuente}")
             try:
                 noticia.texto_limpio = self.repositorio.leer_texto(noticia.id_noticia)
@@ -134,7 +143,7 @@ class PipelineLaboratorio:
                     fallos += 1
                     continue
                 self.extractor.extraer(noticia)
-                self.validador.validar(DIR_JSON / f"{noticia.id_noticia}.json")
+                self.validador.validar(ruta_json)
                 print("    OK: JSON validado")
                 ok += 1
             except FileNotFoundError:
@@ -146,6 +155,8 @@ class PipelineLaboratorio:
             except Exception as exc:  # noqa: BLE001 — una noticia no debe tumbar el lote
                 fallos += 1
                 print(f"    Error: {exc}")
+        if omitidas:
+            print(f"  Omitidas (ya extraídas antes): {omitidas}")
         print(f"Extracción finalizada: {ok} ok, {fallos} fallos, {len(noticias)} total")
         return ok, fallos
 
