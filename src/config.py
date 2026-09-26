@@ -20,6 +20,7 @@ DIR_RAW = DATA_DIR / "raw"
 DIR_PROCESSED = DATA_DIR / "processed"
 DIR_JSON = DATA_DIR / "json"
 DIR_VAULT = RAIZ / "obsidian_vault"
+DIR_GRAFICOS = DATA_DIR / "graficos"
 
 # Identificación educada ante los servidores (uso académico).
 USER_AGENT = (
