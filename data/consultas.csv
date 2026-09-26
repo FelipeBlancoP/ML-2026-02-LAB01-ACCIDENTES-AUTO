@@ -1,4 +1,5 @@
 consulta,categoria_busqueda,limite
-homicidio Chile,homicidio,5
-trafico de drogas Chile,trafico_drogas,5
-robo con violencia Chile,robo_con_violencia,5
+robo de vehiculo Chile,robo_vehiculos,10
+robo de auto Chile,robo_vehiculos,10
+portonazo Chile,robo_vehiculos,10
+encerrona Chile,robo_vehiculos,10
