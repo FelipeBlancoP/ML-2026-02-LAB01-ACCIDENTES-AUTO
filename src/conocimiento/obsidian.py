@@ -72,6 +72,17 @@ class EscritorVaultObsidian(EscritorObsidian):
         for carpeta in self.CARPETAS:
             (self.vault / carpeta).mkdir(parents=True, exist_ok=True)
 
+    def _limpiar_carpetas(self) -> None:
+        """Borra las notas generadas antes de reconstruir el vault.
+
+        Sin esto, una noticia eliminada de data/json/ deja notas de entidades
+        y relaciones huérfanas (enlaces rotos a un id_noticia que ya no existe).
+        """
+        self._asegurar_carpetas()
+        for carpeta in self.CARPETAS:
+            for md in (self.vault / carpeta).glob("*.md"):
+                md.unlink()
+
     def _enlace_entidad(self, nombre: str) -> str:
         """Wiki-link estable: usa el slug para que nunca se rompa el enlace."""
         return enlace_obsidian(slugify(nombre))
@@ -400,7 +411,7 @@ class EscritorVaultObsidian(EscritorObsidian):
         return ruta
 
     def escribir_vault(self, noticias: list[dict]) -> None:
-        self._asegurar_carpetas()
+        self._limpiar_carpetas()
         if not noticias:
             noticias = self._cargar_noticias()
         for data in noticias:
